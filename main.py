@@ -1,6 +1,5 @@
 from tkinter import *
 import subprocess
-from subprocess import Popen, PIPE
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -381,7 +380,7 @@ class Root:
             os.makedirs(self.entry_output_file_path.get())
 
         def ls_proc():
-            return Popen(
+            return subprocess.Popen(
                 v_complete,
                 shell=True,
                 stdout=subprocess.PIPE,
