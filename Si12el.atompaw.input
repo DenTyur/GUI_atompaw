@@ -16,7 +16,7 @@ n
 y                         ! additional l=1 partial-wave                       
 20
 n
-custom rrkj vanderbiltortho
+custom rrkj vanderbiltortho 
 2 -1.0  ultrasoft         ! V local
 1.1                       ! r_c l=0
 1.1                       ! r_c l=0
@@ -27,6 +27,19 @@ custom rrkj vanderbiltortho
 XMLOUT                   
 default
 END
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

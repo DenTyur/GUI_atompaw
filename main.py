@@ -264,16 +264,14 @@ class Root:
         file_path = self.entry_input_file_path.get()
         if file_path:
             self.input_atompaw.delete("1.0", END)
-            self.input_atompaw.insert("1.0", open(file_path).read())
+            with open(file_path, "r") as f:
+                self.input_atompaw.insert("1.0", f.read())
 
     def save_input_file(self, event=None):
-        if self.input_atompaw.compare("end-1c", "==", "1.0"):
-            open_file()
         file_path = self.entry_input_file_path.get()
-        f = open(file_path, "w", encoding="utf-8")
-        text = self.input_atompaw.get("1.0", END)
-        f.write(text)
-        f.close()
+        with open(file_path, "w") as f:
+            text = self.input_atompaw.get("1.0", END)
+            f.write(text)
 
     def create_input_path_entry(self):
         input_path_label = Label(self.root, text="input file:")
@@ -284,9 +282,7 @@ class Root:
         self.entry_input_file_path.place(x=140, y=20, width=440, height=30)
         self.entry_input_file_path.insert(
             END,
-            "/home/denis/DFT/GUI_atompaw/Si12el.atompaw.input",
-            # END,
-            # "Si12el.atompaw.input",
+            "enter the absolute path to the atompaw.input file",
         )
 
     def create_output_path_entry(self):
@@ -296,7 +292,9 @@ class Root:
             bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
         )
         self.entry_output_file_path.place(x=140, y=60, width=440, height=30)
-        self.entry_output_file_path.insert(END, "./atompaw_out")
+        self.entry_output_file_path.insert(
+            END, "enter the path to the output directory"
+        )
 
     def run(self):
         self.root.mainloop()
@@ -449,6 +447,6 @@ if __name__ == "__main__":
     root.create_input_path_entry()
     root.create_output_path_entry()
     root.create_buttons()
-    root.load_input_file()
+    # root.load_input_file()
     root.make_key_bindings()
     root.run()
