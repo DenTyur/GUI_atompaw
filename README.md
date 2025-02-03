@@ -20,7 +20,7 @@ For example, `~/atompaw-4.2.0.3/build/src/atompaw`.
    The progress of calculations will be displayed in the "Atompaw out" field.
    The "plots" field displays graphs of pseudofunctions and logarithmic derivatives.
 
- ![GUI_atompaw](img/GUI_atompaw.png)
+ ![GUI_atompaw](https://github.com/DenTyur/GUI_atompaw/blob/master/imgs/GUI_atompaw.png)
 
 
 
