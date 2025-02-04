@@ -1,7 +1,7 @@
 from tkinter import *
 import subprocess
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 import numpy as np
 import os
@@ -160,7 +160,8 @@ class Root:
         ax = fig.subplots(max_number_pw_per_l + 1, number_of_l)
         li = [0] * (number_of_l)
 
-        for i in range(number_of_l + 1 + max_number_pw_per_l):
+        # for i in range(number_of_l + 1 + max_number_pw_per_l):
+        for i in range(np.sum(pw_per_l)):
             radius, AEpw, PSpw, projector = [np.array([])] * 4
             file_path = f"{path_dir}/wfn{i+1}"
             with open(file_path, "r") as file:
@@ -175,18 +176,21 @@ class Root:
                     PSpw = np.append(PSpw, float(line.split()[2]))
                     projector = np.append(projector, float(line.split()[3]))
 
-                ax[li[l], l].plot(radius, AEpw, color="black", label="AE")
-                ax[li[l], l].plot(radius, PSpw, color="red", label="PS")
-                ax[li[l], l].plot(radius, projector, color="green", label="Proj")
-                ax[li[l], l].set(
-                    xlabel="radius [a.u.]",
-                    ylabel="amplitude",
-                    title=f"l={l}, E={E:.2f} Ry",
-                )
-                ax[li[l], l].grid()
-                # if li[l] == 0 and l == 0:
-                # ax[li[l], l].legend(loc="upper right")
-                li[l] += 1
+                # print("=========", pw_per_l, i, l)
+                if li[l] <= pw_per_l[l]:
+                    ax[li[l], l].plot(radius, AEpw, color="black", label="AE")
+                    ax[li[l], l].plot(radius, PSpw, color="red", label="PS")
+                    ax[li[l], l].plot(radius, projector,
+                                      color="green", label="Proj")
+                    ax[li[l], l].set(
+                        xlabel="radius [a.u.]",
+                        ylabel="amplitude",
+                        title=f"l={l}, E={E:.2f} Ry",
+                    )
+                    ax[li[l], l].grid()
+                    # if li[l] == 0 and l == 0:
+                    # ax[li[l], l].legend(loc="upper right")
+                    li[l] += 1
 
         for i in range(number_of_l):
             energy, AElogderiv, PSlogderiv = [np.array([])] * 3
@@ -198,7 +202,8 @@ class Root:
                     PSlogderiv = np.append(PSlogderiv, float(line.split()[2]))
 
             ax[-1, i].plot(energy, AElogderiv, color="black", label="Exact")
-            ax[-1, i].plot(energy, PSlogderiv, color="red", label="PAW", linestyle="--")
+            ax[-1, i].plot(energy, PSlogderiv, color="red",
+                           label="PAW", linestyle="--")
             ax[-1, i].set(
                 xlabel="energy [Ry]",
                 ylabel="log derivative",
@@ -220,10 +225,7 @@ class Root:
             width=self.plot_settings["width"],
             height=self.plot_settings["height"] + 80,
         )
-        canvas = FigureCanvasTkAgg(
-            fig,
-            master=plot_frame,
-        )
+
         canvas = Canvas(
             plot_frame,
             bg="#FFFFFF",
@@ -239,9 +241,13 @@ class Root:
         canvas.create_window(0, 0, window=middle, anchor="nw")
         canvas_1 = FigureCanvasTkAgg(fig, middle)
         canvas_1.get_tk_widget().pack(expand=True, fill=BOTH)
+        toolbar = NavigationToolbar2Tk(canvas_1, middle)
+        toolbar.update()
+        canvas_1.get_tk_widget().pack(expand=True, fill=BOTH)
         canvas_1.draw()
         middle.bind(
-            "<Configure>", lambda e: canvas.config(scrollregion=canvas.bbox("all"))
+            "<Configure>", lambda e: canvas.config(
+                scrollregion=canvas.bbox("all"))
         )
         self.input_atompaw.focus_force()
 
@@ -264,14 +270,16 @@ class Root:
         file_path = self.entry_input_file_path.get()
         if file_path:
             self.input_atompaw.delete("1.0", END)
-            with open(file_path, "r") as f:
-                self.input_atompaw.insert("1.0", f.read())
+            self.input_atompaw.insert("1.0", open(file_path).read())
 
     def save_input_file(self, event=None):
+        if self.input_atompaw.compare("end-1c", "==", "1.0"):
+            open_file()
         file_path = self.entry_input_file_path.get()
-        with open(file_path, "w") as f:
-            text = self.input_atompaw.get("1.0", END)
-            f.write(text)
+        f = open(file_path, "w", encoding="utf-8")
+        text = self.input_atompaw.get("1.0", END)
+        f.write(text)
+        f.close()
 
     def create_input_path_entry(self):
         input_path_label = Label(self.root, text="input file:")
@@ -282,7 +290,9 @@ class Root:
         self.entry_input_file_path.place(x=140, y=20, width=440, height=30)
         self.entry_input_file_path.insert(
             END,
-            "enter the absolute path to the atompaw.input file",
+            "/home/denis/DFT/GUI_atompaw/Si12el.atompaw.input",
+            # END,
+            # "Si12el.atompaw.input",
         )
 
     def create_output_path_entry(self):
@@ -292,9 +302,7 @@ class Root:
             bd=0, bg="#D9D9D9", fg="#000716", highlightthickness=0
         )
         self.entry_output_file_path.place(x=140, y=60, width=440, height=30)
-        self.entry_output_file_path.insert(
-            END, "enter the path to the output directory"
-        )
+        self.entry_output_file_path.insert(END, "./atompaw_out")
 
     def run(self):
         self.root.mainloop()
@@ -447,6 +455,6 @@ if __name__ == "__main__":
     root.create_input_path_entry()
     root.create_output_path_entry()
     root.create_buttons()
-    # root.load_input_file()
+    root.load_input_file()
     root.make_key_bindings()
     root.run()
